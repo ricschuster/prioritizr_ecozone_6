@@ -26,15 +26,15 @@ terra::gdalCache(size = 24000) # set cache to 16gb
 # Set parameters ------------------------------------------------------------
 
 # set project folder
-ecozone_folder <- "processing/prioritizr/ecozones"
+ecozone_folder <- "data"
 
 # open includes and convert na to zero
 includes_rast <- rast("Existing_Conservation.tif")
 includes_rast[is.na(includes_rast)] <- 0
 
 # Open goals table as single table of species
-input_data_path <- ""
-species_meta_path <- file.path("WTW_NAT_SPECIES_METADATA.xlsx")
+input_data_path <- "C:/Work/NCC/R/prioritizr_ecozone_6"
+species_meta_path <- file.path(input_data_path, "WTW_NAT_SPECIES_METADATA.xlsx")
 
 tibbles <- list()
 for(sheet in excel_sheets(species_meta_path)){
@@ -45,24 +45,26 @@ for(sheet in excel_sheets(species_meta_path)){
 species_meta <- bind_rows(tibbles)
 
 # list ecozones to process
-ecozone_list <- c(4,5,6,7,8,9,10,11,12,13,14,15)
+ecozone_list <- c(6)
 
 # Prep and run prioritizr for ecozones -------------------------------------
+ecozone <- ecozone_list
 
-for(ecozone in ecozone_list){
+
+# for(ecozone in ecozone_list){
   
   print(paste0("processing ecozone...", ecozone))
   
   # set paths
-  tiffs <- file.path(ecozone_folder, ecozone, "Tiffs")
-  output <- file.path(ecozone_folder, ecozone, "output")
+  tiffs <- file.path(ecozone_folder, "Tiffs")
+  output <- file.path(ecozone_folder, "output")
   
   if(!dir.exists(output)){
     dir.create(output)
   }
   
   # open PUs
-  pu <- rast(file.path(ecozone_folder, ecozone, "PU/PU.tif"))
+  pu <- rast(file.path(ecozone_folder, "PU/PU.tif"))
   
   # 1. Get all theme rasters in a terra stack ------------------------------
   print("prep rasters...")
@@ -157,7 +159,7 @@ for(ecozone in ecozone_list){
   # write_csv(eval_target_coverage_summary(p2, s2), file.path(output, "eval_target_summary_carbon_cost.csv"), append = FALSE)
   
   rm(list=c("p1", "p2", "s1", "s2", "theme_rasters", "targets", "features"))
-}
+# }
 
 #######
 # Merge all ecozones together into national grid and save as single tif
