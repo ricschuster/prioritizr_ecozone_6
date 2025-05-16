@@ -88,9 +88,23 @@ ecozone <- ecozone_list
   # compute intensive step for prioritizr, but a lot of performance gain
   # for running `problem` function, esp. if used more than once.
   print("rasters to rij...")
-  theme_rij <- rij_matrix(pu, theme_rasters)
-  include_rij <- rij_matrix(pu, include_rasters)
+  
+  
+  # rij matrix generation can be skipped unless if you want to profile the
+  # funtion itself
+  if(!file.exists("data/theme_rij.rds")){
+    theme_rij <- rij_matrix(pu, theme_rasters)
+    include_rij <- rij_matrix(pu, include_rasters)
+    theme_rij %>% saveRDS("data/theme_rij.rds", compress = TRUE) 
+    include_rij %>% saveRDS("data/include_rij.rds", compress = TRUE) 
+    
+  } else {
+    theme_rij <- readRDS("data/theme_rij.rds") 
+    include_rij <- readRDS("data/include_rij.rds") 
+    
+  }
   #cost_rij <- rij_matrix(pu, cost_rasters)
+  
   
   # 3. Get includes as logical vector
   locked_in <- as.logical(include_rij[1,] > 0)
