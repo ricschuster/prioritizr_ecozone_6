@@ -19,7 +19,8 @@ library(dplyr)
 library(terra)
 library(tibble)
 library(readr)
-library(gurobi)
+# library(gurobi)
+library(highs)
 library(readxl)
 
 terra::gdalCache(size = 24000) # set cache to 16gb
@@ -84,6 +85,8 @@ ecozone <- ecozone_list
   names(theme_rasters) <- tools::file_path_sans_ext(basename(sources(theme_rasters)))
   
   # 2. Convert to rij matrix
+  # compute intensive step for prioritizr, but a lot of performance gain
+  # for running `problem` function, esp. if used more than once.
   print("rasters to rij...")
   theme_rij <- rij_matrix(pu, theme_rasters)
   include_rij <- rij_matrix(pu, include_rasters)
@@ -129,7 +132,8 @@ ecozone <- ecozone_list
     add_min_set_objective() %>%
     add_manual_targets(targets) %>%
     add_binary_decisions() %>%
-    add_gurobi_solver(gap = 0) %>%
+    # add_gurobi_solver(gap = 0) %>%
+    add_highs_solver(gap = 0.1, time_limit = 100) %>% #set time limit for now 
     add_locked_in_constraints(locked_in)
   
   # p2 <- problem(
@@ -142,7 +146,7 @@ ecozone <- ecozone_list
   #   add_gurobi_solver(gap = 0.01) %>%
   #   add_locked_in_constraints(locked_in)
   
-  s1 <- solve(p1, force = TRUE)
+  s1 <- solve(p1, force = TRUE) 
   #s2 <- solve(p2, force = TRUE)
   
   # save output
