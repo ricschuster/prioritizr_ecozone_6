@@ -33,7 +33,7 @@ includes_rast <- rast("Existing_Conservation.tif")
 includes_rast[is.na(includes_rast)] <- 0
 
 # Open goals table as single table of species
-input_data_path <- "C:/Work/NCC/R/prioritizr_ecozone_6"
+input_data_path <- getwd()
 species_meta_path <- file.path(input_data_path, "WTW_NAT_SPECIES_METADATA.xlsx")
 
 tibbles <- list()
@@ -164,32 +164,32 @@ ecozone <- ecozone_list
 #######
 # Merge all ecozones together into national grid and save as single tif
 #######
-
-merge_list <- list()
-for(ecozone in ecozone_list){
-  merge_list[[as.character(ecozone)]] <- rast(file.path(ecozone_folder, ecozone, "output", "solution_1.tif"))
-}
-ecozone_solutions_1_merged <- terra::merge(sprc(merge_list))
-writeRaster(ecozone_solutions_1_merged, file.path(ecozone_folder, "ecozones_solution_1_merged_temp.tif"))
-
-## Align solution to same extent and same number of rows/cols as national grid ----
-### get spatial properties of ncc grid
-ncc_1km <- rast(file.path(input_data_path, "nat_pu/NCC_1KM_PU.tif"))
-proj4_string <- terra::crs(ncc_1km,  proj=TRUE) # projection string
-bbox <- terra::ext(ncc_1km) # bounding box
-### variables for gdalwarp
-te <- c(bbox[1], bbox[3], bbox[2], bbox[4]) # xmin, ymin, xmax, ymax
-ts <- c(terra::ncol(ncc_1km), terra::nrow(ncc_1km)) # ncc grid: columns/rows
-### gdalUtilities::gdalwarp does not require a local GDAL installation ----
-gdalUtilities::gdalwarp(srcfile = file.path(ecozone_folder, "ecozones_solution_1_merged_temp.tif"),
-                        dstfile = file.path(ecozone_folder, "Canada_wtw_2024.tif"),
-                        te = te,
-                        t_srs = proj4_string,
-                        ts = ts,
-                        overwrite = TRUE)
-file.remove(file.path(ecozone_folder, "ecozones_solution_1_merged_temp.tif"))
-
-# Make a version that removes the includes
-ecozones_merged <- rast(file.path(ecozone_folder, "Canada_wtw_2024.tif"))
-ecozones_merged_noincludes <- ecozones_merged - includes_rast
-writeRaster(ecozones_merged_noincludes, file.path(ecozone_folder, "Canada_wtw_2024_noIncludes.tif"), overwrite = TRUE, datatype = "INT2U")
+# 
+# merge_list <- list()
+# for(ecozone in ecozone_list){
+#   merge_list[[as.character(ecozone)]] <- rast(file.path(ecozone_folder, ecozone, "output", "solution_1.tif"))
+# }
+# ecozone_solutions_1_merged <- terra::merge(sprc(merge_list))
+# writeRaster(ecozone_solutions_1_merged, file.path(ecozone_folder, "ecozones_solution_1_merged_temp.tif"))
+# 
+# ## Align solution to same extent and same number of rows/cols as national grid ----
+# ### get spatial properties of ncc grid
+# ncc_1km <- rast(file.path(input_data_path, "nat_pu/NCC_1KM_PU.tif"))
+# proj4_string <- terra::crs(ncc_1km,  proj=TRUE) # projection string
+# bbox <- terra::ext(ncc_1km) # bounding box
+# ### variables for gdalwarp
+# te <- c(bbox[1], bbox[3], bbox[2], bbox[4]) # xmin, ymin, xmax, ymax
+# ts <- c(terra::ncol(ncc_1km), terra::nrow(ncc_1km)) # ncc grid: columns/rows
+# ### gdalUtilities::gdalwarp does not require a local GDAL installation ----
+# gdalUtilities::gdalwarp(srcfile = file.path(ecozone_folder, "ecozones_solution_1_merged_temp.tif"),
+#                         dstfile = file.path(ecozone_folder, "Canada_wtw_2024.tif"),
+#                         te = te,
+#                         t_srs = proj4_string,
+#                         ts = ts,
+#                         overwrite = TRUE)
+# file.remove(file.path(ecozone_folder, "ecozones_solution_1_merged_temp.tif"))
+# 
+# # Make a version that removes the includes
+# ecozones_merged <- rast(file.path(ecozone_folder, "Canada_wtw_2024.tif"))
+# ecozones_merged_noincludes <- ecozones_merged - includes_rast
+# writeRaster(ecozones_merged_noincludes, file.path(ecozone_folder, "Canada_wtw_2024_noIncludes.tif"), overwrite = TRUE, datatype = "INT2U")
