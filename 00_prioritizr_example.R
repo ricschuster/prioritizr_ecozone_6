@@ -133,7 +133,7 @@ ecozone <- ecozone_list
     add_manual_targets(targets) %>%
     add_binary_decisions() %>%
     # add_gurobi_solver(gap = 0) %>%
-    add_highs_solver(gap = 0.1, time_limit = 100) %>% #set time limit for now 
+    add_highs_solver(gap = 0.1, presolve = F, time_limit = 100) %>% #set time limit for now 
     add_locked_in_constraints(locked_in)
   
   # p2 <- problem(
