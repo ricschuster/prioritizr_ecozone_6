@@ -166,9 +166,13 @@ ecozone <- ecozone_list
   # save output
   s1_rast <- pu
   values(s1_rast)[!is.na(values(s1_rast))] <- s1
-  writeRaster(s1_rast, filename = file.path(output, "solution_1.tif"), overwrite=TRUE)
-  write_csv(eval_n_summary(p1, s1), file.path(output, "eval_n_summary_s1.csv"), append = FALSE)
-  write_csv(eval_target_coverage_summary(p1, s1), file.path(output, "eval_target_summary_s1.csv"), append = FALSE)
+  
+  plot(s1_rast)
+  
+  
+  # writeRaster(s1_rast, filename = file.path(output, "solution_1.tif"), overwrite=TRUE)
+  # write_csv(eval_n_summary(p1, s1), file.path(output, "eval_n_summary_s1.csv"), append = FALSE)
+  # write_csv(eval_target_coverage_summary(p1, s1), file.path(output, "eval_target_summary_s1.csv"), append = FALSE)
   
   # s2_rast <- pu
   # values(s2_rast)[!is.na(values(s2_rast))] <- s2
