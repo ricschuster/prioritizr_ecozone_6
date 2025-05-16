@@ -167,7 +167,8 @@ ecozone <- ecozone_list
   s1_rast <- pu
   values(s1_rast)[!is.na(values(s1_rast))] <- s1
   
-  plot(s1_rast)
+  # plot(s1_rast)
+  print(sprintf("Cells =  %d; Selected =  %d",length(s1), sum(s1)))
   
   
   # writeRaster(s1_rast, filename = file.path(output, "solution_1.tif"), overwrite=TRUE)
@@ -180,7 +181,7 @@ ecozone <- ecozone_list
   # write_csv(eval_n_summary(p2, s2), file.path(output, "eval_n_summary_carbon_cost.csv"), append = FALSE)
   # write_csv(eval_target_coverage_summary(p2, s2), file.path(output, "eval_target_summary_carbon_cost.csv"), append = FALSE)
   
-  rm(list=c("p1", "p2", "s1", "s2", "theme_rasters", "targets", "features"))
+  # rm(list=c("p1", "p2", "s1", "s2", "theme_rasters", "targets", "features"))
 # }
 
 #######
