@@ -26,16 +26,26 @@ library(readxl)
 terra::gdalCache(size = 24000) # set cache to 16gb
 # Set parameters ------------------------------------------------------------
 
+# Ecozone 6, Boreal Shield, 2.01M PUs
+# Ecozone 8, Mixedwood Plain, 169k PUs
+# Ecozone 10, Prairies,  467k PUs
+# Ecozone 9, Boreal Plain, 740l PUs
+
+# list ecozones to process
+ecozone_list <- c(6, 8, 9, 10)
+
+#choose Ecozone 8 given it has the smallest number of PU's
+ecozone <- ecozone_list[2]
+
 # set project folder
-ecozone_folder <- "data"
+ecozone_folder <- file.path("data", ecozone)
 
 # open includes and convert na to zero
 includes_rast <- rast("Existing_Conservation.tif")
 includes_rast[is.na(includes_rast)] <- 0
 
 # Open goals table as single table of species
-input_data_path <- getwd()
-species_meta_path <- file.path(input_data_path, "WTW_NAT_SPECIES_METADATA.xlsx")
+species_meta_path <- file.path(getwd(), "WTW_NAT_SPECIES_METADATA.xlsx")
 
 tibbles <- list()
 for(sheet in excel_sheets(species_meta_path)){
@@ -45,11 +55,9 @@ for(sheet in excel_sheets(species_meta_path)){
 }
 species_meta <- bind_rows(tibbles)
 
-# list ecozones to process
-ecozone_list <- c(6)
 
 # Prep and run prioritizr for ecozones -------------------------------------
-ecozone <- ecozone_list
+
 
 
 # for(ecozone in ecozone_list){
@@ -92,15 +100,15 @@ ecozone <- ecozone_list
   
   # rij matrix generation can be skipped unless if you want to profile the
   # funtion itself
-  if(!file.exists("data/theme_rij.rds")){
+  if(!file.exists(file.path(ecozone_folder, "theme_rij.rds"))){
     theme_rij <- rij_matrix(pu, theme_rasters)
     include_rij <- rij_matrix(pu, include_rasters)
-    theme_rij %>% saveRDS("data/theme_rij.rds", compress = TRUE) 
-    include_rij %>% saveRDS("data/include_rij.rds", compress = TRUE) 
+    theme_rij %>% saveRDS(file.path(ecozone_folder, "theme_rij.rds"), compress = TRUE) 
+    include_rij %>% saveRDS(file.path(ecozone_folder, "include_rij.rds"), compress = TRUE) 
     
   } else {
-    theme_rij <- readRDS("data/theme_rij.rds") 
-    include_rij <- readRDS("data/include_rij.rds") 
+    theme_rij <- readRDS(file.path(ecozone_folder, "theme_rij.rds")) 
+    include_rij <- readRDS(file.path(ecozone_folder, "include_rij.rds")) 
     
   }
   #cost_rij <- rij_matrix(pu, cost_rasters)
@@ -147,7 +155,7 @@ ecozone <- ecozone_list
     add_manual_targets(targets) %>%
     add_binary_decisions() %>%
     # add_gurobi_solver(gap = 0) %>%
-    add_highs_solver(gap = 0.1, presolve = F, time_limit = 100) %>% #set time limit for now 
+    add_highs_solver(gap = 0.1, presolve = F, time_limit = 50) %>% #set time limit for now 
     add_locked_in_constraints(locked_in)
   
   # p2 <- problem(
